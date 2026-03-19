@@ -1,0 +1,31 @@
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-family);
+  background:  var(--color-bg);
+  color:       var(--color-text);
+  line-height: 1.5;
+  overflow-x:  hidden;
+  min-height:  100vh;
+}
+
+a { color: var(--color-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button {
+  font:    inherit;
+  cursor:  pointer;
+  border:  none;
+  outline: none;
+}
+
+img, video { max-width: 100%; display: block; }
+
+ul, ol { list-style: none; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }

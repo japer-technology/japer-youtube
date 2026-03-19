@@ -1,0 +1,21 @@
+/* ── CSS Custom Properties ─────────────────────────────────────────────────── */
+:root {
+  --color-bg:          #0f0f0f;
+  --color-surface:     #1a1a1a;
+  --color-surface-alt: #272727;
+  --color-border:      #3a3a3a;
+  --color-text:        #f1f1f1;
+  --color-text-muted:  #aaaaaa;
+  --color-primary:     #ff0000;
+  --color-primary-hover: #cc0000;
+  --color-accent:      #3ea6ff;
+
+  --font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+  --radius:      8px;
+  --radius-sm:   4px;
+  --shadow:      0 2px 8px rgba(0,0,0,.4);
+  --transition:  .2s ease;
+
+  --header-height: 56px;
+  --sidebar-width: 240px;
+}

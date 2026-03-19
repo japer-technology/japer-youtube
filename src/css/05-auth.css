@@ -1,0 +1,62 @@
+/* ── Auth / Login ──────────────────────────────────────────────────────────── */
+.btn-login {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background var(--transition);
+}
+.btn-login:hover { background: #2b8ad9; }
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.user-menu {
+  position: absolute;
+  top: calc(var(--header-height) - 4px);
+  right: 16px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 8px 0;
+  min-width: 180px;
+  box-shadow: var(--shadow);
+  display: none;
+}
+.user-menu.open { display: block; }
+
+.user-menu__item {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: background var(--transition);
+}
+.user-menu__item:hover { background: var(--color-border); }
+
+/* Login overlay shown when not authenticated */
+.login-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 48px;
+  text-align: center;
+}
+
+.login-overlay h2 {
+  font-size: 1.6rem;
+}
+
+.login-overlay p {
+  color: var(--color-text-muted);
+  max-width: 400px;
+}

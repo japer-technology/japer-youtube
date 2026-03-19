@@ -1,0 +1,23 @@
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .player-overlay {
+    padding: 0;
+  }
+
+  .player-container {
+    border-radius: 0;
+    max-width: 100%;
+  }
+}

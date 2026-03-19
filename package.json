@@ -1,0 +1,13 @@
+{
+  "name": "japer-youtube",
+  "version": "1.0.0",
+  "description": "Single-file YouTube subscription viewer built from source pieces",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch",
+    "serve": "node build.js && npx http-server dist -p 8080 -o"
+  },
+  "devDependencies": {},
+  "license": "MIT"
+}

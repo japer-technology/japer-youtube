@@ -70,10 +70,14 @@ ${js}
 if (process.argv.includes('--watch')) {
   build();
   console.log('[watch] watching src/ for changes…');
+  let debounce = null;
   fs.watch(SRC, { recursive: true }, (_event, filename) => {
     if (!filename) return;
-    console.log(`[watch] changed: ${filename}`);
-    build();
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      console.log(`[watch] changed: ${filename}`);
+      build();
+    }, 80);
   });
 } else {
   build();

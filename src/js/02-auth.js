@@ -47,6 +47,7 @@ JaperYT.Auth = (function () {
   function handleTokenResponse(resp) {
     if (resp.error) {
       console.error('[Auth] token error', resp);
+      JaperYT.UI.toast('Sign-in failed: ' + (resp.error_description || resp.error));
       return;
     }
     accessToken = resp.access_token;

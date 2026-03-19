@@ -1,7 +1,11 @@
 /* ── App Bootstrap ─────────────────────────────────────────────────────────── */
 
 JaperYT.App = (function () {
+  var userMenu;
+
   function start() {
+    userMenu = document.getElementById('user-menu');
+
     JaperYT.Player.init();
     JaperYT.UI.setLoggedIn(false);
 
@@ -14,11 +18,23 @@ JaperYT.App = (function () {
     document.getElementById('btn-signout')
       .addEventListener('click', function () { JaperYT.Auth.signOut(); });
 
+    document.getElementById('back-to-feed')
+      .addEventListener('click', function () { JaperYT.UI.backToFeed(); });
+
     // Toggle user menu
     document.getElementById('user-avatar')
-      .addEventListener('click', function () {
-        document.getElementById('user-menu').classList.toggle('open');
+      .addEventListener('click', function (e) {
+        e.stopPropagation();
+        userMenu.classList.toggle('open');
       });
+
+    // Close user menu on outside click or Escape
+    document.addEventListener('click', function () {
+      userMenu.classList.remove('open');
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') userMenu.classList.remove('open');
+    });
 
     // Initialise auth — the callback fires when login state changes
     JaperYT.Auth.init(onAuthChange);
@@ -41,7 +57,10 @@ JaperYT.App = (function () {
         JaperYT.UI.renderSubscriptions(result.items);
         loadMoreSubscriptions(result.nextPageToken);
       })
-      .catch(function (err) { console.error('[subs]', err); });
+      .catch(function (err) {
+        console.error('[subs]', err);
+        JaperYT.UI.toast('Failed to load subscriptions');
+      });
 
     // Load activity feed
     JaperYT.Subscriptions.getFeed()
@@ -50,6 +69,7 @@ JaperYT.App = (function () {
       })
       .catch(function (err) {
         console.error('[feed]', err);
+        JaperYT.UI.toast('Could not load your feed');
         JaperYT.UI.showEmpty('Could not load your feed.');
       });
   }
@@ -74,3 +94,12 @@ JaperYT.App = (function () {
 window.onGISLoaded = function () {
   JaperYT.App.start();
 };
+
+/* Fallback: if GIS fails to load, still render the login screen */
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    if (typeof google === 'undefined' || !google.accounts) {
+      JaperYT.UI.toast('Google sign-in library failed to load. Check your connection or ad-blocker.');
+    }
+  }, 5000);
+});

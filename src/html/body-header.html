@@ -4,17 +4,17 @@
   <header class="app-header">
     <div class="app-header__brand">
       <!-- YouTube-style play icon -->
-      <svg viewBox="0 0 24 24"><path d="M21.58 7.19A2.5 2.5 0 0 0 19.82 5.4C18.25 5 12 5 12 5s-6.25 0-7.82.4A2.5 2.5 0 0 0 2.42 7.19 26.2 26.2 0 0 0 2 12a26.2 26.2 0 0 0 .42 4.81 2.5 2.5 0 0 0 1.76 1.79C5.75 19 12 19 12 19s6.25 0 7.82-.4a2.5 2.5 0 0 0 1.76-1.79A26.2 26.2 0 0 0 22 12a26.2 26.2 0 0 0-.42-4.81zM10 15.5V8.5l5.5 3.5-5.5 3.5z"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.58 7.19A2.5 2.5 0 0 0 19.82 5.4C18.25 5 12 5 12 5s-6.25 0-7.82.4A2.5 2.5 0 0 0 2.42 7.19 26.2 26.2 0 0 0 2 12a26.2 26.2 0 0 0 .42 4.81 2.5 2.5 0 0 0 1.76 1.79C5.75 19 12 19 12 19s6.25 0 7.82-.4a2.5 2.5 0 0 0 1.76-1.79A26.2 26.2 0 0 0 22 12a26.2 26.2 0 0 0-.42-4.81zM10 15.5V8.5l5.5 3.5-5.5 3.5z"/></svg>
       <span>Japer YouTube</span>
     </div>
 
     <div class="app-header__actions">
-      <button id="btn-login" class="btn-login">Sign in with Google</button>
+      <button id="btn-login" class="btn-login" aria-label="Sign in with Google">Sign in with Google</button>
 
       <div id="user-area" style="display:none; align-items:center; gap:8px;">
-        <img id="user-avatar" class="user-avatar" alt="avatar" src="">
-        <div id="user-menu" class="user-menu">
-          <div id="btn-signout" class="user-menu__item">Sign out</div>
+        <img id="user-avatar" class="user-avatar" alt="Your profile" src="">
+        <div id="user-menu" class="user-menu" role="menu">
+          <div id="btn-signout" class="user-menu__item" role="menuitem" tabindex="0">Sign out</div>
         </div>
       </div>
     </div>

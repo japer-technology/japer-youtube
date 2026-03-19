@@ -10,13 +10,15 @@
   <div id="app-body" class="app-body" style="display:none;">
 
     <!-- Sidebar: subscription channels -->
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="Subscriptions">
+      <div class="sidebar-heading">Subscriptions</div>
       <div id="subscriptions-list" class="subscriptions-list"></div>
     </aside>
 
     <!-- Content: video feed / grid -->
     <main class="content">
       <div class="feed-header">
+        <button id="back-to-feed" class="back-to-feed" aria-label="Back to subscription feed">← Back to feed</button>
         <h2 id="feed-title">Subscription Feed</h2>
       </div>
       <div id="video-grid" class="video-grid"></div>
@@ -24,11 +26,12 @@
   </div>
 
   <!-- ── Player Overlay ─────────────────────────────────────────────────── -->
-  <div id="player-overlay" class="player-overlay">
-    <button id="player-close" class="player-close">&times;</button>
+  <div id="player-overlay" class="player-overlay" role="dialog" aria-label="Video player">
+    <button id="player-close" class="player-close" aria-label="Close player">&times;</button>
     <div class="player-container">
       <div class="player-container__video">
         <iframe id="player-iframe"
+                title="Video player"
                 allow="autoplay; encrypted-media"
                 allowfullscreen></iframe>
       </div>
@@ -40,3 +43,6 @@
   </div>
 
 </div><!-- /#app -->
+
+<!-- Toast notifications -->
+<div id="toast-container" class="toast-container" aria-live="polite"></div>

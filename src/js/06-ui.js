@@ -1,6 +1,20 @@
 /* ── UI Helpers ────────────────────────────────────────────────────────────── */
 
 JaperYT.UI = (function () {
+  var isViewingChannel = false;
+
+  /**
+   * Show a toast notification at the bottom of the screen.
+   */
+  function toast(msg) {
+    var container = document.getElementById('toast-container');
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(function () { el.remove(); }, 3500);
+  }
+
   /**
    * Render a list of subscription channels in the sidebar.
    */
@@ -9,12 +23,17 @@ JaperYT.UI = (function () {
     channels.forEach(function (ch) {
       var el = document.createElement('div');
       el.className = 'subscription-item';
+      el.tabIndex = 0;
+      el.setAttribute('role', 'button');
       el.dataset.channelId = ch.channelId;
       el.innerHTML =
         '<img class="subscription-item__thumb" alt="" src="' + escapeAttr(ch.thumb) + '">' +
         '<span class="subscription-item__name">' + escapeHTML(ch.title) + '</span>';
       el.addEventListener('click', function () {
         selectChannel(ch);
+      });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectChannel(ch); }
       });
       list.appendChild(el);
     });
@@ -29,6 +48,8 @@ JaperYT.UI = (function () {
     var el = document.querySelector('[data-channel-id="' + CSS.escape(ch.channelId) + '"]');
     if (el) el.classList.add('active');
 
+    isViewingChannel = true;
+    updateBackButton();
     setFeedTitle(ch.title);
     showSpinner();
 
@@ -38,8 +59,36 @@ JaperYT.UI = (function () {
       })
       .catch(function (err) {
         console.error(err);
+        toast('Failed to load videos');
         showEmpty('Failed to load videos.');
       });
+  }
+
+  /**
+   * Return to the subscription activity feed.
+   */
+  function backToFeed() {
+    isViewingChannel = false;
+    updateBackButton();
+    document.querySelectorAll('.subscription-item.active')
+      .forEach(function (el) { el.classList.remove('active'); });
+    setFeedTitle('Subscription Feed');
+    showSpinner();
+
+    JaperYT.Subscriptions.getFeed()
+      .then(function (videos) {
+        renderVideoGrid(videos);
+      })
+      .catch(function (err) {
+        console.error(err);
+        toast('Could not load your feed');
+        showEmpty('Could not load your feed.');
+      });
+  }
+
+  function updateBackButton() {
+    var btn = document.getElementById('back-to-feed');
+    btn.classList.toggle('visible', isViewingChannel);
   }
 
   /**
@@ -57,6 +106,9 @@ JaperYT.UI = (function () {
     videos.forEach(function (v) {
       var card = document.createElement('div');
       card.className = 'video-card';
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', v.title);
       card.innerHTML =
         '<div class="video-card__thumb"><img alt="" src="' + escapeAttr(v.thumb) + '"></div>' +
         '<div class="video-card__info">' +
@@ -69,6 +121,9 @@ JaperYT.UI = (function () {
       card.addEventListener('click', function () {
         JaperYT.Player.open(v);
       });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); JaperYT.Player.open(v); }
+      });
       grid.appendChild(card);
     });
   }
@@ -79,7 +134,7 @@ JaperYT.UI = (function () {
 
   function showSpinner() {
     var grid = document.getElementById('video-grid');
-    grid.innerHTML = '<div class="spinner"></div>';
+    grid.innerHTML = '<div class="spinner" role="status" aria-label="Loading"></div>';
   }
 
   function showEmpty(msg) {
@@ -140,5 +195,7 @@ JaperYT.UI = (function () {
     setFeedTitle:        setFeedTitle,
     showSpinner:         showSpinner,
     showEmpty:           showEmpty,
+    backToFeed:          backToFeed,
+    toast:               toast,
   };
 })();

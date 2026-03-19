@@ -2,8 +2,12 @@
 
 JaperYT.App = (function () {
   var userMenu;
+  var started = false;
 
   function start() {
+    if (started) return;
+    started = true;
+
     userMenu = document.getElementById('user-menu');
 
     JaperYT.Player.init();
@@ -94,6 +98,11 @@ JaperYT.App = (function () {
 window.onGISLoaded = function () {
   JaperYT.App.start();
 };
+
+/* If GIS loaded before this script ran (race condition with async), start now */
+if (window.gisReady) {
+  JaperYT.App.start();
+}
 
 /* Fallback: if GIS fails to load, still render the login screen */
 window.addEventListener('load', function () {

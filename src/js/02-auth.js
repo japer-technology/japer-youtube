@@ -25,7 +25,7 @@ JaperYT.Auth = (function () {
    */
   function signIn() {
     if (tokenClient) {
-      tokenClient.requestAccessToken({ prompt: 'consent' });
+      tokenClient.requestAccessToken({ prompt: '' });
     }
   }
 

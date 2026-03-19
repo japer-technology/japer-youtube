@@ -1,114 +1,128 @@
 /* ── App Bootstrap ─────────────────────────────────────────────────────────── */
 
 JaperYT.App = (function () {
-  var userMenu;
   var started = false;
 
   function start() {
     if (started) return;
     started = true;
 
-    userMenu = document.getElementById('user-menu');
-
     JaperYT.Player.init();
-    JaperYT.UI.setLoggedIn(false);
+    JaperYT.UI.setPaired(false);
 
-    document.getElementById('btn-login')
-      .addEventListener('click', function () { JaperYT.Auth.signIn(); });
+    // Disconnect button
+    document.getElementById('btn-disconnect')
+      .addEventListener('click', function () {
+        JaperYT.KeyExchange.disconnect();
+        JaperYT.UI.setPaired(false);
+        beginPairing();
+      });
 
-    document.getElementById('btn-login-hero')
-      .addEventListener('click', function () { JaperYT.Auth.signIn(); });
-
-    document.getElementById('btn-signout')
-      .addEventListener('click', function () { JaperYT.Auth.signOut(); });
-
+    // Back to trending feed
     document.getElementById('back-to-feed')
       .addEventListener('click', function () { JaperYT.UI.backToFeed(); });
 
-    // Toggle user menu
-    document.getElementById('user-avatar')
-      .addEventListener('click', function (e) {
-        e.stopPropagation();
-        userMenu.classList.toggle('open');
-      });
+    // Search input
+    var searchInput = document.getElementById('search-input');
+    var searchBtn   = document.getElementById('search-btn');
 
-    // Close user menu on outside click or Escape
-    document.addEventListener('click', function () {
-      userMenu.classList.remove('open');
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') userMenu.classList.remove('open');
-    });
-
-    // Initialise auth — the callback fires when login state changes
-    JaperYT.Auth.init(onAuthChange);
-  }
-
-  function onAuthChange(loggedIn) {
-    JaperYT.UI.setLoggedIn(loggedIn);
-    if (loggedIn) {
-      loadSubscriptionsFeed();
+    function doSearch() {
+      var query = searchInput.value.trim();
+      if (!query) return;
+      JaperYT.UI.setFeedTitle('Search: ' + query);
+      JaperYT.UI.showSpinner();
+      JaperYT.Subscriptions.searchVideos(query)
+        .then(function (videos) {
+          JaperYT.UI.renderVideoGrid(videos);
+        })
+        .catch(function (err) {
+          console.error('[search]', err);
+          JaperYT.UI.toast('Search failed');
+          JaperYT.UI.showEmpty('Search failed.');
+        });
     }
+
+    searchBtn.addEventListener('click', doSearch);
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    // Add channel from sidebar
+    var addChannelInput = document.getElementById('add-channel-input');
+    var addChannelBtn   = document.getElementById('add-channel-btn');
+
+    function doAddChannel() {
+      var query = addChannelInput.value.trim();
+      if (!query) return;
+      addChannelBtn.disabled = true;
+      JaperYT.Subscriptions.addChannel(query)
+        .then(function (channel) {
+          if (channel) {
+            JaperYT.UI.renderSubscriptions(
+              Array.from(document.querySelectorAll('.subscription-item')).length === 0
+                ? [channel]
+                : getExistingChannels().concat(channel)
+            );
+            addChannelInput.value = '';
+            JaperYT.UI.toast('Added ' + channel.title);
+          } else {
+            JaperYT.UI.toast('Channel not found');
+          }
+        })
+        .catch(function () { JaperYT.UI.toast('Could not add channel'); })
+        .finally(function () { addChannelBtn.disabled = false; });
+    }
+
+    addChannelBtn.addEventListener('click', doAddChannel);
+    addChannelInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') doAddChannel();
+    });
+
+    beginPairing();
   }
 
-  function loadSubscriptionsFeed() {
-    JaperYT.UI.setFeedTitle('Subscription Feed');
+  function getExistingChannels() {
+    var items = document.querySelectorAll('.subscription-item');
+    var channels = [];
+    items.forEach(function (el) {
+      channels.push({
+        channelId: el.dataset.channelId,
+        title: el.querySelector('.subscription-item__name').textContent,
+        thumb: el.querySelector('.subscription-item__thumb').src
+      });
+    });
+    return channels;
+  }
+
+  function beginPairing() {
+    var canvas = document.getElementById('pairing-barcode');
+    JaperYT.KeyExchange.start(canvas, onKeysReady);
+  }
+
+  function onKeysReady() {
+    JaperYT.UI.setPaired(true);
+    loadTrending();
+  }
+
+  function loadTrending() {
+    JaperYT.UI.setFeedTitle('Trending');
     JaperYT.UI.showSpinner();
 
-    // Load sidebar subscriptions
-    JaperYT.Subscriptions.load()
-      .then(function (result) {
-        JaperYT.UI.renderSubscriptions(result.items);
-        loadMoreSubscriptions(result.nextPageToken);
-      })
-      .catch(function (err) {
-        console.error('[subs]', err);
-        JaperYT.UI.toast('Failed to load subscriptions');
-      });
-
-    // Load activity feed
-    JaperYT.Subscriptions.getFeed()
+    JaperYT.Subscriptions.getTrending()
       .then(function (videos) {
         JaperYT.UI.renderVideoGrid(videos);
       })
       .catch(function (err) {
-        console.error('[feed]', err);
-        JaperYT.UI.toast('Could not load your feed');
-        JaperYT.UI.showEmpty('Could not load your feed.');
-      });
-  }
-
-  /**
-   * Recursively load remaining subscription pages so the full list appears
-   * in the sidebar.
-   */
-  function loadMoreSubscriptions(pageToken) {
-    if (!pageToken) return;
-    JaperYT.Subscriptions.load(pageToken)
-      .then(function (result) {
-        JaperYT.UI.renderSubscriptions(result.items);
-        loadMoreSubscriptions(result.nextPageToken);
+        console.error('[trending]', err);
+        JaperYT.UI.toast('Could not load trending videos');
+        JaperYT.UI.showEmpty('Could not load trending videos.');
       });
   }
 
   return { start: start };
 })();
 
-/* ── Kick off when GIS library finishes loading ───────────────────────────── */
-window.onGISLoaded = function () {
+/* ── Start app once DOM is ready ──────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function () {
   JaperYT.App.start();
-};
-
-/* If GIS loaded before this script ran (race condition with async), start now */
-if (window.gisReady) {
-  JaperYT.App.start();
-}
-
-/* Fallback: if GIS fails to load, still render the login screen */
-window.addEventListener('load', function () {
-  setTimeout(function () {
-    if (typeof google === 'undefined' || !google.accounts) {
-      JaperYT.UI.toast('Google sign-in library failed to load. Check your connection or ad-blocker.');
-    }
-  }, 5000);
 });

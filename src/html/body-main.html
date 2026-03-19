@@ -1,25 +1,30 @@
-  <!-- ── Login Overlay (shown when not signed in) ────────────────────────── -->
-  <div id="login-overlay" class="login-overlay">
+  <!-- ── Pairing Overlay (shown until paired with JAPER App) ────────────── -->
+  <div id="pairing-overlay" class="pairing-overlay">
     <svg viewBox="0 0 24 24" width="72" height="72" fill="#ff0000"><path d="M21.58 7.19A2.5 2.5 0 0 0 19.82 5.4C18.25 5 12 5 12 5s-6.25 0-7.82.4A2.5 2.5 0 0 0 2.42 7.19 26.2 26.2 0 0 0 2 12a26.2 26.2 0 0 0 .42 4.81 2.5 2.5 0 0 0 1.76 1.79C5.75 19 12 19 12 19s6.25 0 7.82-.4a2.5 2.5 0 0 0 1.76-1.79A26.2 26.2 0 0 0 22 12a26.2 26.2 0 0 0-.42-4.81zM10 15.5V8.5l5.5 3.5-5.5 3.5z"/></svg>
-    <h2>Welcome to Japer YouTube</h2>
-    <p>Sign in with your Google account to browse your YouTube subscriptions and watch videos.</p>
-    <button id="btn-login-hero" class="btn-login">Sign in with Google</button>
+    <h2>Pair with JAPER App</h2>
+    <p>Scan the barcode below with JAPER App on your phone to securely connect.</p>
+    <canvas id="pairing-barcode" class="pairing-barcode"></canvas>
+    <div id="pairing-status" class="pairing-status">Generating code…</div>
   </div>
 
   <!-- ── Main Body (visible when signed in) ─────────────────────────────── -->
   <div id="app-body" class="app-body" style="display:none;">
 
-    <!-- Sidebar: subscription channels -->
-    <aside class="sidebar" aria-label="Subscriptions">
-      <div class="sidebar-heading">Subscriptions</div>
+    <!-- Sidebar: channels -->
+    <aside class="sidebar" aria-label="Channels">
+      <div class="sidebar-heading">Channels</div>
+      <div class="add-channel">
+        <input id="add-channel-input" class="add-channel__input" type="text" placeholder="Add channel…" aria-label="Add channel">
+        <button id="add-channel-btn" class="add-channel__btn" aria-label="Add">+</button>
+      </div>
       <div id="subscriptions-list" class="subscriptions-list"></div>
     </aside>
 
     <!-- Content: video feed / grid -->
     <main class="content">
       <div class="feed-header">
-        <button id="back-to-feed" class="back-to-feed" aria-label="Back to subscription feed">← Back to feed</button>
-        <h2 id="feed-title">Subscription Feed</h2>
+        <button id="back-to-feed" class="back-to-feed" aria-label="Back to trending feed">← Back to feed</button>
+        <h2 id="feed-title">Trending</h2>
       </div>
       <div id="video-grid" class="video-grid"></div>
     </main>

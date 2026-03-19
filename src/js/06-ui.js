@@ -20,6 +20,7 @@ JaperYT.UI = (function () {
    */
   function renderSubscriptions(channels) {
     var list = document.getElementById('subscriptions-list');
+    list.innerHTML = '';
     channels.forEach(function (ch) {
       var el = document.createElement('div');
       el.className = 'subscription-item';
@@ -65,24 +66,24 @@ JaperYT.UI = (function () {
   }
 
   /**
-   * Return to the subscription activity feed.
+   * Return to the trending / home feed.
    */
   function backToFeed() {
     isViewingChannel = false;
     updateBackButton();
     document.querySelectorAll('.subscription-item.active')
       .forEach(function (el) { el.classList.remove('active'); });
-    setFeedTitle('Subscription Feed');
+    setFeedTitle('Trending');
     showSpinner();
 
-    JaperYT.Subscriptions.getFeed()
+    JaperYT.Subscriptions.getTrending()
       .then(function (videos) {
         renderVideoGrid(videos);
       })
       .catch(function (err) {
         console.error(err);
-        toast('Could not load your feed');
-        showEmpty('Could not load your feed.');
+        toast('Could not load feed');
+        showEmpty('Could not load feed.');
       });
   }
 
@@ -143,20 +144,12 @@ JaperYT.UI = (function () {
   }
 
   /**
-   * Toggle UI between logged-in and logged-out states.
+   * Toggle UI between paired and unpaired states.
    */
-  function setLoggedIn(loggedIn) {
-    document.getElementById('login-overlay').style.display = loggedIn ? 'none' : 'flex';
-    document.getElementById('app-body').style.display      = loggedIn ? 'flex' : 'none';
-    document.getElementById('btn-login').style.display     = loggedIn ? 'none' : '';
-    document.getElementById('user-area').style.display     = loggedIn ? 'flex' : 'none';
-
-    if (loggedIn) {
-      var profile = JaperYT.Auth.getProfile();
-      if (profile) {
-        document.getElementById('user-avatar').src = profile.photo;
-      }
-    }
+  function setPaired(paired) {
+    document.getElementById('pairing-overlay').style.display = paired ? 'none' : 'flex';
+    document.getElementById('app-body').style.display        = paired ? 'flex' : 'none';
+    document.getElementById('btn-disconnect').style.display  = paired ? '' : 'none';
   }
 
   // ── Utilities ──
@@ -191,7 +184,7 @@ JaperYT.UI = (function () {
   return {
     renderSubscriptions: renderSubscriptions,
     renderVideoGrid:     renderVideoGrid,
-    setLoggedIn:         setLoggedIn,
+    setPaired:           setPaired,
     setFeedTitle:        setFeedTitle,
     showSpinner:         showSpinner,
     showEmpty:           showEmpty,

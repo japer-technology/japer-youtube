@@ -1,37 +1,34 @@
-/* ── Subscriptions ─────────────────────────────────────────────────────────── */
+/* ── Channels & Videos ─────────────────────────────────────────────────────── */
 
 JaperYT.Subscriptions = (function () {
   var channels = [];
-  var nextPageToken = null;
 
   /**
-   * Fetch the user's subscriptions (one page at a time).
-   * @param {string} [pageToken]
-   * @returns {Promise<{items: Array, nextPageToken: string|null}>}
+   * Look up a channel by handle, username, or ID and add it to the sidebar.
+   * @param {string} query — channel name / handle to search for
+   * @returns {Promise<object>} the resolved channel
    */
-  function load(pageToken) {
-    var params = {
+  function addChannel(query) {
+    return JaperYT.API.request('/search', {
       part:       'snippet',
-      mine:       true,
-      maxResults: JaperYT.CONFIG.MAX_RESULTS,
-      order:      'alphabetical',
-    };
-    if (pageToken) params.pageToken = pageToken;
-
-    return JaperYT.API.request('/subscriptions', params)
-      .then(function (data) {
-        var items = (data.items || []).map(function (item) {
-          var s = item.snippet;
-          return {
-            channelId: s.resourceId.channelId,
-            title:     s.title,
-            thumb:     s.thumbnails.default.url,
-          };
-        });
-        channels = channels.concat(items);
-        nextPageToken = data.nextPageToken || null;
-        return { items: items, nextPageToken: nextPageToken };
-      });
+      q:          query,
+      type:       'channel',
+      maxResults: 1,
+    }).then(function (data) {
+      if (!data.items || !data.items.length) {
+        throw new Error('Channel not found');
+      }
+      var s = data.items[0].snippet;
+      var ch = {
+        channelId: data.items[0].id.channelId,
+        title:     s.title,
+        thumb:     s.thumbnails.default.url,
+      };
+      if (!channels.some(function (c) { return c.channelId === ch.channelId; })) {
+        channels.push(ch);
+      }
+      return ch;
+    });
   }
 
   /**
@@ -61,44 +58,61 @@ JaperYT.Subscriptions = (function () {
   }
 
   /**
-   * Fetch the user's subscription activity feed (latest videos across all
-   * subscriptions).  Uses the Activities endpoint.
+   * Search YouTube for videos matching a query.
+   * @param {string} query
    * @returns {Promise<Array>}
    */
-  function getFeed() {
-    return JaperYT.API.request('/activities', {
-      part:       'snippet,contentDetails',
-      mine:       true,
+  function searchVideos(query) {
+    return JaperYT.API.request('/search', {
+      part:       'snippet',
+      q:          query,
+      type:       'video',
+      order:      'relevance',
       maxResults: JaperYT.CONFIG.MAX_RESULTS,
     }).then(function (data) {
-      return (data.items || [])
-        .filter(function (item) { return item.snippet.type === 'upload'; })
-        .map(function (item) {
-          var s = item.snippet;
-          var videoId = item.contentDetails.upload
-            ? item.contentDetails.upload.videoId
-            : '';
-          return {
-            videoId:     videoId,
-            title:       s.title,
-            channel:     s.channelTitle,
-            thumb:       s.thumbnails.medium
-                           ? s.thumbnails.medium.url
-                           : s.thumbnails.default.url,
-            publishedAt: s.publishedAt,
-          };
-        });
+      return (data.items || []).map(function (item) {
+        var s = item.snippet;
+        return {
+          videoId:     item.id.videoId,
+          title:       s.title,
+          channel:     s.channelTitle,
+          thumb:       s.thumbnails.medium.url,
+          publishedAt: s.publishedAt,
+        };
+      });
     });
   }
 
-  function getChannels()       { return channels; }
-  function getNextPageToken()  { return nextPageToken; }
+  /**
+   * Fetch trending / popular videos as a home feed.
+   * @returns {Promise<Array>}
+   */
+  function getTrending() {
+    return JaperYT.API.request('/videos', {
+      part:       'snippet',
+      chart:      'mostPopular',
+      maxResults: JaperYT.CONFIG.MAX_RESULTS,
+    }).then(function (data) {
+      return (data.items || []).map(function (item) {
+        var s = item.snippet;
+        return {
+          videoId:     item.id,
+          title:       s.title,
+          channel:     s.channelTitle,
+          thumb:       s.thumbnails.medium.url,
+          publishedAt: s.publishedAt,
+        };
+      });
+    });
+  }
+
+  function getChannels() { return channels; }
 
   return {
-    load:             load,
-    getVideos:        getVideos,
-    getFeed:          getFeed,
-    getChannels:      getChannels,
-    getNextPageToken: getNextPageToken,
+    addChannel:   addChannel,
+    getVideos:    getVideos,
+    searchVideos: searchVideos,
+    getTrending:  getTrending,
+    getChannels:  getChannels,
   };
 })();

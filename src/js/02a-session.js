@@ -47,7 +47,7 @@ JaperYT.Session = (function () {
       reader.onload = function () {
         try {
           var data = JSON.parse(reader.result);
-          if (!data.keys || !data.keys.youtube) {
+          if (!data.keys || !data.keys.youtube || !data.keys.openai) {
             reject(new Error('File does not contain valid API keys.'));
             return;
           }

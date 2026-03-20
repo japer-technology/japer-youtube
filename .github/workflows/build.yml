@@ -1,0 +1,50 @@
+name: Build HTML
+
+on:
+  push:
+    paths:
+      - "src/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install --no-save htmlhint eslint@8
+
+      - name: Lint JavaScript
+        run: npx eslint src/js/*.js --no-eslintrc --env browser --parser-options=ecmaVersion:2022
+
+      - name: Build HTML
+        run: npm run build
+
+      - name: Validate HTML
+        run: npx htmlhint dist/index.html
+
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "ts=$(date -u +'%Y%m%d%H%M%S')" >> "$GITHUB_OUTPUT"
+
+      - name: Rename build output
+        run: cp dist/index.html "dist/japer-youtube-${{ steps.timestamp.outputs.ts }}.html"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "japer-youtube-${{ steps.timestamp.outputs.ts }}"
+          path: "dist/japer-youtube-${{ steps.timestamp.outputs.ts }}.html"
+          retention-days: 90

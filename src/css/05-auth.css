@@ -16,6 +16,22 @@
   color: var(--color-text);
 }
 
+/* Save session button in header */
+.btn-save-session {
+  padding: 6px 14px;
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.btn-save-session:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
 /* Search bar in header */
 .search-bar {
   display: flex;
@@ -78,6 +94,100 @@
 }
 .add-channel__btn:hover { background: #2b8ad9; }
 .add-channel__btn:disabled { opacity: .5; cursor: default; }
+
+/* Welcome overlay (startup screen) */
+.welcome-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 48px;
+  text-align: center;
+  min-height: calc(100vh - var(--header-height));
+  margin-top: var(--header-height);
+}
+.welcome-overlay h2 {
+  font-size: 1.6rem;
+}
+.welcome-overlay p {
+  color: var(--color-text-muted);
+  max-width: 420px;
+}
+
+/* Welcome action buttons */
+.welcome-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.welcome-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  border: 2px solid transparent;
+}
+.welcome-btn--primary {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+.welcome-btn--primary:hover {
+  background: #2b8ad9;
+  border-color: #2b8ad9;
+}
+.welcome-btn--secondary {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.welcome-btn--secondary:hover {
+  background: var(--color-surface-alt);
+  border-color: var(--color-text-muted);
+}
+
+/* API keys form */
+.api-keys-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+.api-keys-form__label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+.api-keys-form__input {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.api-keys-form__input:focus {
+  border-color: var(--color-accent);
+}
+.api-keys-form__input::placeholder {
+  color: var(--color-text-muted);
+}
+.api-keys-form__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 12px;
+}
 
 /* Pairing overlay shown when not connected */
 .pairing-overlay {

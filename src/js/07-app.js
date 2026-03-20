@@ -8,14 +8,19 @@ JaperYT.App = (function () {
     started = true;
 
     JaperYT.Player.init();
-    JaperYT.UI.setPaired(false);
+    showWelcome();
 
-    // Disconnect button
+    // Disconnect button — return to welcome screen
     document.getElementById('btn-disconnect')
       .addEventListener('click', function () {
         JaperYT.KeyExchange.disconnect();
-        JaperYT.UI.setPaired(false);
-        beginPairing();
+        showWelcome();
+      });
+
+    // Save session button
+    document.getElementById('btn-save-session')
+      .addEventListener('click', function () {
+        JaperYT.Session.save();
       });
 
     // Back to trending feed
@@ -78,7 +83,59 @@ JaperYT.App = (function () {
       if (e.key === 'Enter') doAddChannel();
     });
 
-    beginPairing();
+    // ── Welcome screen handlers ──
+
+    // "New Session" button → show API key form
+    document.getElementById('btn-new-session')
+      .addEventListener('click', function () {
+        hideAllOverlays();
+        document.getElementById('new-session-overlay').style.display = 'flex';
+      });
+
+    // "Open Saved Session" button → trigger file picker
+    document.getElementById('btn-open-session')
+      .addEventListener('click', function () {
+        document.getElementById('session-file-input').click();
+      });
+
+    // File input change → load session file
+    document.getElementById('session-file-input')
+      .addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        JaperYT.Session.readFile(file)
+          .then(function (data) {
+            JaperYT.Session.apply(data);
+            onKeysReady();
+            JaperYT.UI.toast('Session loaded from ' + file.name);
+          })
+          .catch(function (err) {
+            JaperYT.UI.toast(err.message || 'Failed to load session.');
+          });
+        // Reset the input so the same file can be re-selected
+        e.target.value = '';
+      });
+
+    // "Back" button on new session form
+    document.getElementById('btn-back-to-welcome')
+      .addEventListener('click', function () {
+        hideAllOverlays();
+        document.getElementById('welcome-overlay').style.display = 'flex';
+      });
+
+    // API keys form submit
+    document.getElementById('api-keys-form')
+      .addEventListener('submit', function (e) {
+        e.preventDefault();
+        var ytKey     = document.getElementById('input-yt-key').value.trim();
+        var openaiKey = document.getElementById('input-openai-key').value.trim();
+        if (!ytKey || !openaiKey) {
+          JaperYT.UI.toast('Please enter both API keys.');
+          return;
+        }
+        JaperYT.KeyExchange.setKeys({ youtube: ytKey, openai: openaiKey });
+        onKeysReady();
+      });
   }
 
   function getExistingChannels() {
@@ -94,13 +151,25 @@ JaperYT.App = (function () {
     return channels;
   }
 
-  function beginPairing() {
-    var canvas = document.getElementById('pairing-barcode');
-    JaperYT.KeyExchange.start(canvas, onKeysReady);
+  function hideAllOverlays() {
+    document.getElementById('welcome-overlay').style.display     = 'none';
+    document.getElementById('new-session-overlay').style.display  = 'none';
+    document.getElementById('pairing-overlay').style.display      = 'none';
+    document.getElementById('app-body').style.display             = 'none';
+  }
+
+  function showWelcome() {
+    hideAllOverlays();
+    document.getElementById('welcome-overlay').style.display    = 'flex';
+    document.getElementById('btn-disconnect').style.display     = 'none';
+    document.getElementById('btn-save-session').style.display   = 'none';
   }
 
   function onKeysReady() {
-    JaperYT.UI.setPaired(true);
+    hideAllOverlays();
+    document.getElementById('app-body').style.display          = 'flex';
+    document.getElementById('btn-disconnect').style.display    = '';
+    document.getElementById('btn-save-session').style.display  = '';
     loadTrending();
   }
 

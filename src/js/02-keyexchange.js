@@ -131,6 +131,17 @@ JaperYT.KeyExchange = (function () {
     if (onKeysReady) onKeysReady(false);
   }
 
+  /**
+   * Set API keys directly (e.g. from manual entry or a loaded file).
+   * @param {object} keysObj — { youtube: '...', openai: '...' }
+   */
+  function setKeys(keysObj) {
+    keys = keysObj;
+    stopPolling();
+    if (onKeysReady) onKeysReady(true);
+  }
+
+  function getKeys()     { return keys ? Object.assign({}, keys) : null; }
   function getKey(name)  { return keys ? keys[name] : null; }
   function isReady()     { return keys !== null; }
   function getSessionId(){ return sessionId; }
@@ -138,6 +149,8 @@ JaperYT.KeyExchange = (function () {
   return {
     start:        start,
     disconnect:   disconnect,
+    setKeys:      setKeys,
+    getKeys:      getKeys,
     getKey:       getKey,
     isReady:      isReady,
     getSessionId: getSessionId,
